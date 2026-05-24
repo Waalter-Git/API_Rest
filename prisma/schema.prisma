@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum UserRole {
+  ADMIN
+  TECH
+  EMPLOYEE
+}
+
+enum AssetType {
+  LAPTOP
+  MONITOR
+  PERIPHERAL
+  SERVER
+}
+
+enum AssetStatus {
+  ACTIVE
+  MAINTENANCE
+  RETIRED
+}
+
+enum TicketStatus {
+  OPEN
+  IN_PROGRESS
+  RESOLVED
+  CLOSED
+}
+
+enum TicketPriority {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+model User {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         UserRole
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  assetsOwned     Asset[]         @relation("UserAssets")
+  ticketsAuthored Ticket[]        @relation("TicketAuthor")
+  ticketsAssigned Ticket[]        @relation("TicketTechnician")
+  comments        TicketComment[]
+}
+
+model Asset {
+  id             String      @id @default(uuid()) @db.Uuid
+  tagNumber      Int         @unique
+  name           String
+  type           AssetType
+  status         AssetStatus @default(ACTIVE)
+  createdAt      DateTime    @default(now())
+  updatedAt      DateTime    @updatedAt
+  assignedUserId String?     @db.Uuid
+  assignedUser   User?       @relation("UserAssets", fields: [assignedUserId], references: [id], onDelete: SetNull)
+
+  tickets Ticket[]
+}
+
+model Ticket {
+  id           String         @id @default(uuid()) @db.Uuid
+  title        String
+  description  String
+  status       TicketStatus   @default(OPEN)
+  priority     TicketPriority @default(MEDIUM)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  authorId     String         @db.Uuid
+  technicianId String?        @db.Uuid
+  assetId      String         @db.Uuid
+
+  author     User            @relation("TicketAuthor", fields: [authorId], references: [id], onDelete: Restrict)
+  technician User?           @relation("TicketTechnician", fields: [technicianId], references: [id], onDelete: SetNull)
+  asset      Asset           @relation(fields: [assetId], references: [id], onDelete: Restrict)
+  comments   TicketComment[]
+}
+
+model TicketComment {
+  id        String   @id @default(uuid()) @db.Uuid
+  message   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ticketId  String   @db.Uuid
+  authorId  String   @db.Uuid
+
+  ticket Ticket @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([ticketId])
+  @@index([authorId])
+}

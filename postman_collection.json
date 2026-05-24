@@ -1,0 +1,394 @@
+{
+  "info": {
+    "_postman_id": "d8a5f7f9-1f09-4698-9f7d-c8c0e9e4b0d1",
+    "name": "Helpdesk e Gestao Corporativa de Ativos API",
+    "description": "Colecao Postman v2.1.0 para validacao funcional da API REST de Helpdesk e Gestao Corporativa de Ativos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "jwt_token",
+      "value": ""
+    },
+    {
+      "key": "asset_id",
+      "value": ""
+    },
+    {
+      "key": "ticket_id",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Usuarios",
+      "description": "Registro e autenticacao.",
+      "item": [
+        {
+          "name": "Registro",
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Employee\",\n  \"email\": \"john.employee@company.com\",\n  \"password\": \"StrongP@ssw0rd!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "register"
+              ]
+            },
+            "description": "Cria novo usuario no sistema."
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status deve ser 200', function () {",
+                  "  pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "if (pm.response.code === 200) {",
+                  "  const data = pm.response.json();",
+                  "  const token = data.accessToken || data.token || (data.data && data.data.accessToken);",
+                  "",
+                  "  pm.test('Token JWT retornado', function () {",
+                  "    pm.expect(token).to.be.a('string');",
+                  "    pm.expect(token.length).to.be.greaterThan(0);",
+                  "  });",
+                  "",
+                  "  if (token) {",
+                  "    pm.globals.set('jwt_token', token);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "auth": {
+              "type": "noauth"
+            },
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.employee@company.com\",\n  \"password\": \"StrongP@ssw0rd!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/login",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "login"
+              ]
+            },
+            "description": "Autentica usuario e salva o JWT em variavel global jwt_token."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Ativos",
+      "description": "Cadastro, listagem e manutencao de ativos corporativos.",
+      "item": [
+        {
+          "name": "Cadastrar Ativo",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"tagNumber\": 10001,\n  \"name\": \"Dell Latitude 5440\",\n  \"type\": \"LAPTOP\",\n  \"status\": \"ACTIVE\",\n  \"assignedUserId\": \"00000000-0000-0000-0000-000000000000\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/assets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "assets"
+              ]
+            },
+            "description": "Cria novo ativo. Requer role ADMIN ou TECH."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Ativos",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/assets?page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "assets"
+              ],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Lista ativos com paginacao."
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar Ativo",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"MAINTENANCE\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/assets/{{asset_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "assets",
+                "{{asset_id}}"
+              ]
+            },
+            "description": "Atualiza um ativo por id. Requer role ADMIN ou TECH."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Chamados",
+      "description": "Ciclo de vida de tickets e comentarios.",
+      "item": [
+        {
+          "name": "Criar Chamado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Notebook sem inicializacao\",\n  \"description\": \"O equipamento nao liga apos atualizacao de firmware.\",\n  \"assetId\": \"{{asset_id}}\",\n  \"priority\": \"HIGH\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ]
+            },
+            "description": "Abre chamado com status inicial OPEN."
+          },
+          "response": []
+        },
+        {
+          "name": "Listar Chamados",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/tickets?status=OPEN&priority=HIGH&page=1&limit=10",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tickets"
+              ],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "OPEN"
+                },
+                {
+                  "key": "priority",
+                  "value": "HIGH"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "Lista chamados com filtros opcionais por status e prioridade."
+          },
+          "response": []
+        },
+        {
+          "name": "Atualizar Status do Chamado",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"IN_PROGRESS\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}/status",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticket_id}}",
+                "status"
+              ]
+            },
+            "description": "Atualiza status do ticket. Requer role ADMIN ou TECH."
+          },
+          "response": []
+        },
+        {
+          "name": "Criar Comentario no Chamado",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"message\": \"Analise inicial concluida. Necessario trocar componente de energia.\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/tickets/{{ticket_id}}/comments",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "tickets",
+                "{{ticket_id}}",
+                "comments"
+              ]
+            },
+            "description": "Adiciona comentario ao chamado por ticket_id."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
