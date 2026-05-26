@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { BarChart3, ClipboardList, HardDrive, LogOut, Shield, UserCircle2 } from 'lucide-react';
 import { useEffect } from 'react';
+import { Toaster } from 'sonner';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { cn } from '@/lib/utils';
@@ -122,6 +123,8 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
           </main>
         </div>
       </div>
+
+      <Toaster richColors position="top-right" closeButton />
     </div>
   );
 };

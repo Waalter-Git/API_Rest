@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { createTicketCommentSchema, createTicketSchema, ticketListQuerySchema, ticketStatusParamsSchema, updateTicketStatusSchema } from './ticket.schema';
+import { createTicketCommentSchema, createTicketSchema, ticketCommentParamsSchema, ticketListQuerySchema, ticketStatusParamsSchema, updateTicketStatusSchema } from './ticket.schema';
 import { BadRequestError, ForbiddenError, NotFoundError, createTicket, createTicketComment, getTickets, updateTicketStatus } from './ticket.service';
 
 const createTicketHandler = async (request: Request, response: Response, next: NextFunction): Promise<void> => {
@@ -83,9 +83,9 @@ const createTicketCommentHandler = async (request: Request, response: Response, 
       return;
     }
 
-    const params = ticketStatusParamsSchema.parse(request.params);
+    const params = ticketCommentParamsSchema.parse(request.params);
     const payload = createTicketCommentSchema.parse(request.body);
-    const comment = await createTicketComment(request.user, params.id, payload);
+    const comment = await createTicketComment(request.user, params.ticketId, payload);
 
     response.status(201).json(comment);
   } catch (error) {

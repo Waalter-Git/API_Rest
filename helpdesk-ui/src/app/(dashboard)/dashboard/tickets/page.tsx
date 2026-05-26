@@ -1,26 +1,72 @@
-const TicketsPage = () => {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-      <p className="text-xs uppercase tracking-[0.35em] text-cyan-200/60">Tickets</p>
-      <h3 className="mt-2 text-2xl font-semibold text-white">Service queue</h3>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-300">
-        Follow incident progress, priority distribution and operational response across the support queue.
-      </p>
+import { cookies } from 'next/headers';
+import { AUTH_TOKEN_KEY } from '@/types/auth';
+import type { AssetListResponse, TicketListResponse } from '@/types/dashboard';
+import { TicketsDashboard } from '@/components/features/tickets/tickets-dashboard';
 
-      <div className="mt-6 grid gap-4 lg:grid-cols-2">
-        {[
-          'Critical incidents waiting triage',
-          'Tickets with active technician assignment',
-          'Resolved tickets pending closure review',
-          'User comments awaiting follow-up',
-        ].map((item) => (
-          <div key={item} className="rounded-2xl border border-white/10 bg-black/20 p-4 text-sm text-zinc-300">
-            {item}
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+
+const emptyTicketsResponse = (): TicketListResponse => ({
+  data: [],
+  pagination: {
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  },
+});
+
+const emptyAssetsResponse = (): AssetListResponse => ({
+  data: [],
+  pagination: {
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  },
+});
+
+const loadTickets = async (): Promise<TicketListResponse> => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(AUTH_TOKEN_KEY)?.value;
+
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/tickets?page=1&limit=25`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      return emptyTicketsResponse();
+    }
+
+    return (await response.json()) as TicketListResponse;
+  } catch {
+    return emptyTicketsResponse();
+  }
 };
 
-export default TicketsPage;
+const loadAssets = async (): Promise<AssetListResponse> => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(AUTH_TOKEN_KEY)?.value;
+
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/assets?page=1&limit=100`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      return emptyAssetsResponse();
+    }
+
+    return (await response.json()) as AssetListResponse;
+  } catch {
+    return emptyAssetsResponse();
+  }
+};
+
+export default async function TicketsPage() {
+  const [initialData, assets] = await Promise.all([loadTickets(), loadAssets()]);
+
+  return <TicketsDashboard initialData={initialData} assets={assets.data} />;
+}

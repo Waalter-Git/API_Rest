@@ -23,8 +23,12 @@ const updateTicketStatusSchema = z.object({
   status: z.nativeEnum(TicketStatus),
 });
 
+const ticketCommentParamsSchema = z.object({
+  ticketId: z.string().uuid(),
+});
+
 const createTicketCommentSchema = z.object({
   message: z.string().trim().min(1, 'Comment message cannot be empty').max(2000),
 });
 
-export { createTicketCommentSchema, createTicketSchema, ticketListQuerySchema, ticketStatusParamsSchema, updateTicketStatusSchema };
+export { createTicketCommentSchema, createTicketSchema, ticketCommentParamsSchema, ticketListQuerySchema, ticketStatusParamsSchema, updateTicketStatusSchema };

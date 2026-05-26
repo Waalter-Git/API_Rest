@@ -16,6 +16,14 @@ import {
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
+const writeAuthCookie = (token: string): void => {
+  document.cookie = `${AUTH_TOKEN_KEY}=${token}; path=/; SameSite=Lax`;
+};
+
+const clearAuthCookie = (): void => {
+  document.cookie = `${AUTH_TOKEN_KEY}=; Max-Age=0; path=/; SameSite=Lax`;
+};
+
 const decodeJwtPayload = (token: string): JwtPayload | null => {
   const parts = token.split('.');
 
@@ -80,7 +88,13 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
   const [isReady, setIsReady] = useState(false);
 
   useEffect(() => {
-    setState(readStoredAuthState());
+    const storedState = readStoredAuthState();
+    setState(storedState);
+
+    if (storedState.token) {
+      writeAuthCookie(storedState.token);
+    }
+
     setIsReady(true);
   }, []);
 
@@ -90,6 +104,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       const { accessToken, user } = response.data;
 
       window.localStorage.setItem(AUTH_TOKEN_KEY, accessToken);
+      writeAuthCookie(accessToken);
       setState({
         token: accessToken,
         user,
@@ -109,6 +124,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const logout = (): void => {
     window.localStorage.removeItem(AUTH_TOKEN_KEY);
+    clearAuthCookie();
     setState({ user: null, token: null });
   };
 

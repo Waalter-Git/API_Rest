@@ -1,26 +1,42 @@
-const AssetsPage = () => {
-  return (
-    <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur">
-      <p className="text-xs uppercase tracking-[0.35em] text-cyan-200/60">Assets</p>
-      <h3 className="mt-2 text-2xl font-semibold text-white">Inventory management</h3>
-      <p className="mt-2 max-w-2xl text-sm leading-6 text-zinc-300">
-        Central view reserved for corporate devices, owners, maintenance status and lifecycle tracking.
-      </p>
+import { cookies } from 'next/headers';
+import { AUTH_TOKEN_KEY } from '@/types/auth';
+import type { AssetListResponse } from '@/types/dashboard';
+import { AssetsDashboard } from '@/components/features/assets/assets-dashboard';
 
-      <div className="mt-6 grid gap-4 sm:grid-cols-3">
-        {[
-          { label: 'Registered assets', value: '128' },
-          { label: 'In maintenance', value: '09' },
-          { label: 'Retired', value: '14' },
-        ].map((metric) => (
-          <div key={metric.label} className="rounded-2xl border border-white/10 bg-black/20 p-4">
-            <p className="text-xs uppercase tracking-[0.28em] text-zinc-400">{metric.label}</p>
-            <p className="mt-3 text-3xl font-semibold text-white">{metric.value}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3000';
+
+const emptyAssetsResponse = (): AssetListResponse => ({
+  data: [],
+  pagination: {
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+  },
+});
+
+const loadAssets = async (): Promise<AssetListResponse> => {
+  const cookieStore = await cookies();
+  const token = cookieStore.get(AUTH_TOKEN_KEY)?.value;
+
+  try {
+    const response = await fetch(`${apiBaseUrl}/api/assets?page=1&limit=25`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+      cache: 'no-store',
+    });
+
+    if (!response.ok) {
+      return emptyAssetsResponse();
+    }
+
+    return (await response.json()) as AssetListResponse;
+  } catch {
+    return emptyAssetsResponse();
+  }
 };
 
-export default AssetsPage;
+export default async function AssetsPage() {
+  const initialData = await loadAssets();
+
+  return <AssetsDashboard initialData={initialData} />;
+}
