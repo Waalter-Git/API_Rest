@@ -1,3 +1,4 @@
+
 # TechNexus | Gestão Corporativa de Ativos de TI e Helpdesk
 
 Plataforma full-stack corporativa com foco em arquitetura escalável, segurança em profundidade e experiência operacional para gestão de ativos e atendimento técnico.
@@ -20,6 +21,7 @@ O TechNexus resolve um problema clássico de operação corporativa: rastrear at
 ## Demonstração Visual
 
 ![TechNexus Dashboard em Ação](./docs/dashboard-demo.gif)
+<img width="186" height="104" alt="dashboard-demo" src="https://github.com/user-attachments/assets/56176d4e-4329-4fb8-9497-221de58b3595" />
 
 ## Technical Highlights
 
