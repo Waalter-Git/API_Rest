@@ -1,92 +1,101 @@
-# TechNexus - Plataforma Corporativa de Gestão de Ativos de TI e Helpdesk
+# TechNexus | Gestão Corporativa de Ativos de TI e Helpdesk
 
-[![Node.js](https://img.shields.io/badge/Node.js-Backend-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
-[![Next.js](https://img.shields.io/badge/Next.js-Frontend-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+Plataforma full-stack corporativa com foco em arquitetura escalável, segurança em profundidade e experiência operacional para gestão de ativos e atendimento técnico.
+
+[![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white)](https://www.prisma.io/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-3NF-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![RBAC](https://img.shields.io/badge/Security-RBAC%20%2B%20JWT-0F172A)]()
+[![Next.js](https://img.shields.io/badge/Next.js-15%2B%20App%20Router-000000?logo=next.js&logoColor=white)](https://nextjs.org/)
+[![Security](https://img.shields.io/badge/Security-RBAC%20%2B%20JWT-0F172A)]()
 
-TechNexus é uma plataforma full-stack para Helpdesk e Gestão Corporativa de Ativos de TI, organizada para entrega modular, segurança por perfil e evolução orientada a domínio.
+## Impacto de Negócio
 
-## Arquitetura Full-Stack
+O TechNexus resolve um problema clássico de operação corporativa: rastrear ativos e incidentes com governança rigorosa, auditoria de mudanças e baixa ambiguidade operacional.
 
-### Backend Node.js
-- Estrutura orientada por features em `src/features/`.
-- Autenticação com JWT, RBAC e interceptadores centralizados.
-- Controllers finos, services com regras de negócio e validação com Zod.
+- Reduz risco de inconsistência com **RBAC por perfil** (`ADMIN`, `TECH`, `EMPLOYEE`) em backend e frontend.
+- Evita desvios de processo com **Máquina de Estados Finita inquebrável** no ciclo de chamados.
+- Centraliza rastreabilidade de suporte e inventário em um fluxo único, reduzindo esforço manual e tempo de resposta.
 
-### Persistência PostgreSQL + Prisma
-- Modelagem relacional em 3NF com entidades para usuários, ativos, chamados e comentários.
-- Prisma como camada de acesso com schema versionado e migração inicial aplicada.
-- Relacionamentos com integridade referencial e ações seguras de exclusão.
+## Demonstração Visual
 
-### Frontend Next.js
-- Next.js 15+ com App Router, Server Components e Client Components.
-- Shell protegido para dashboard e fluxo de login isolado.
-- Cliente HTTP com interceptação automática do token JWT.
+![TechNexus Dashboard em Ação](./docs/dashboard-demo.gif)
 
-### Segurança e Governança
-- RBAC com funções `ADMIN`, `TECH` e `EMPLOYEE`.
-- Interceptação global de erros e tratamento de validação.
-- `.gitignore` preparado para bloquear artefatos pesados e segredos.
+## Technical Highlights
 
-## Estrutura de Alto Nível
+- **Máquina de Estados Restritiva:** bloqueio explícito de transições ilegais de status de chamados (ex.: regressão de `RESOLVED` para estados anteriores).
+- **Prevenção de N+1:** consultas relacionais otimizadas no Prisma com `select/include` direcionado por caso de uso.
+- **Renderização Híbrida (SSR & CSR):** uso avançado de Server Components para data fetching seguro e Client Components para interação rica no App Router.
+- **Interceptação Global de Rede:** instância Axios central com injeção automática de JWT em `Authorization` e padronização de chamadas protegidas.
+- **Fronteira de Erros:** Error Boundaries no App Router para resiliência visual e recuperação de falhas sem “tela branca”.
 
-```text
-.
-├─ src/                   # API Node.js / TypeScript
-│  ├─ features/           # users, assets, tickets
-│  ├─ middleware/         # auth, error handler
-│  ├─ config/             # prisma singleton
-│  └─ types/              # declaration merging e contratos
-├─ helpdesk-ui/           # Frontend Next.js
-│  ├─ src/app/            # App Router
-│  ├─ src/components/     # UI, layouts e features
-│  ├─ src/context/        # Auth context
-│  └─ src/lib/            # Axios client e helpers
-└─ prisma/                # schema e migrações
-```
+## Stack Tecnológico
 
-## Inicialização Local
+### Backend
 
-### API
-```bash
-npm install
-npx prisma generate
-npx prisma migrate dev
-npm run dev
-```
+- Node.js
+- TypeScript (strict mode)
+- PostgreSQL modelado em **3NF**
+- Prisma ORM (migrations + client)
+- Zod para validação de contratos HTTP
 
 ### Frontend
-```bash
-cd helpdesk-ui
-npm install
-npm run dev
-```
 
-## Variáveis de Ambiente
-
-### API (`.env`)
-```bash
-DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB"
-JWT_SECRET="your-secret"
-JWT_EXPIRES_IN="8h"
-```
-
-### Frontend (`helpdesk-ui/.env.local`)
-```bash
-NEXT_PUBLIC_API_URL="http://localhost:3000"
-```
+- Next.js 15+ (App Router)
+- Tailwind CSS
+- Shadcn UI (primitivos e composição de interfaces)
+- React Hook Form + Zod
 
 ## Fluxo de Domínio
 
-- Usuários: registro, login e autenticação com JWT.
-- Ativos: cadastro, listagem com paginação e atualização por perfil.
-- Chamados: abertura, listagem, mudança de status e comentários.
+- **Usuários:** registro, login, geração de JWT e autorização por papel.
+- **Ativos:** cadastro, listagem paginada, atualização controlada por RBAC e vínculo de propriedade.
+- **Chamados:** abertura, evolução de status com regra de transição e sistema de comentários protegido por autorização contextual.
 
-## Observações
+## Como Executar Localmente
 
-- O frontend foi estruturado para um layout protegido e navegação corporativa.
-- A API segue separação por responsabilidades para facilitar manutenção e auditoria.
-- A base está preparada para revisão técnica em entrevistas e milestones de portfólio.
+### 1) Instalação de dependências
+
+```bash
+# raiz (backend)
+npm install
+
+# frontend
+cd helpdesk-ui
+npm install
+cd ..
+```
+
+### 2) Configuração de ambiente
+
+```bash
+# arquivo: .env (raiz)
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:5432/DB"
+JWT_SECRET="your-secret"
+JWT_EXPIRES_IN="8h"
+PORT="3000"
+
+# arquivo: helpdesk-ui/.env.local
+NEXT_PUBLIC_API_URL="http://localhost:3000"
+```
+
+### 3) Migração do banco
+
+```bash
+npx prisma migrate dev
+```
+
+### 4) Inicialização
+
+```bash
+# backend (porta 3000)
+npx ts-node-dev --files src/server.ts
+
+# frontend (porta 3001 com turbopack)
+cd helpdesk-ui
+npm run dev -- --turbopack
+```
+
+## Testes Automatizados
+
+O repositório inclui uma **Postman Collection** com scripts automatizados para autenticação e **injeção dinâmica de token JWT**, acelerando validação de fluxo ponta a ponta em rotas protegidas.

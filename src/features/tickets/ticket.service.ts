@@ -182,7 +182,9 @@ const createTicket = async (user: AuthenticatedTicketUser, input: CreateTicketIn
     throw new NotFoundError('Asset not found');
   }
 
-  if (asset.assignedUserId !== user.id) {
+  const isPrivileged = user.role === 'ADMIN' || user.role === 'TECH';
+
+  if (asset.assignedUserId !== user.id && !isPrivileged) {
     throw new ForbiddenError('You do not own the selected asset');
   }
 
