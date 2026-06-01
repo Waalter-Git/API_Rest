@@ -21,7 +21,7 @@ O TechNexus resolve um problema clássico de operação corporativa: rastrear at
 ## Demonstração Visual
 
 ![TechNexus Dashboard em Ação](./docs/dashboard-demo.gif)
-<img width="100%" alt="dashboard-demo" src="https://github.com/user-attachments/assets/56176d4e-4329-4fb8-9497-221de58b3595" />
+<img width="1280" height="720" alt="Adobe Express - 2026-05-29 17-15-18 - Trim2 (1)" src="https://github.com/user-attachments/assets/4446df48-f37d-42c5-88e3-849f1ed4ada1" />
 
 ## Technical Highlights
 
